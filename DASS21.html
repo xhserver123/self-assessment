@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASS-21 抑郁-焦虑-压力量表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb; --secondary-color: #fc5c7d; --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff; --text-color: #333; --light-text-color: #666;
+            --border-radius: 12px; --shadow: 0 6px 15px rgba(0, 0, 0, 0.1); --transition-speed: 0.3s ease;
+            --score-normal-color: #4CAF50; --score-mild-color: #FFC107; --score-moderate-color: #FF9800; 
+            --score-severe-color: #F44336; --score-extreme-color: #b71c1c;
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        h1 { color: var(--primary-color); text-align: center; margin-bottom: 25px; font-size: 2.2em; letter-spacing: 1px; }
+        h2 { color: var(--primary-color); text-align: center; }
+        .scoring-rules { background-color: #e6f7ff; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius); color: var(--light-text-color); }
+        .scoring-rules h3 { color: var(--primary-color); margin-top: 0; font-size: 1.2em; }
+        .question-container { margin-bottom: 20px; padding: 20px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transition: transform var(--transition-speed); }
+        .question-container:hover { transform: translateY(-3px); }
+        .question-container p { font-weight: bold; margin-bottom: 15px; color: var(--text-color); font-size: 1.1em; }
+        .options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 8px 0; transition: color var(--transition-speed); }
+        .options label:hover { color: var(--primary-color); }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; gap: 15px; margin-top: 30px; }
+        .button-group button { flex: 1; padding: 15px 20px; border: none; border-radius: var(--border-radius); font-size: 1.1em; cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); color: white; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .button-group button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+        #prevBtn { background-color: #ffc107; } #prevBtn:hover { background-color: #e0a800; }
+        #nextBtn { background-color: var(--primary-color); } #nextBtn:hover { background-color: #5a70e3; }
+        #submitBtn { background-color: var(--secondary-color); } #submitBtn:hover { background-color: #e64a66; }
+        #result { margin-top: 40px; padding: 30px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); font-size: 1.2em; text-align: center; display: none; opacity: 0; transform: scale(0.9); animation: fadeInScale 0.6s forwards ease-out; border: 2px solid var(--primary-color); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .result-item { margin-bottom: 25px; }
+        .result-item p { margin: 5px 0 10px; font-size: 1.1em; }
+        .result-item .scoreValue { font-size: 2em; color: var(--secondary-color); font-weight: bold; }
+        #scoreInterpretation { font-size: 1.1em; color: var(--light-text-color); margin-top: 20px; text-align: left; padding: 0 15px; }
+        .progress-bar-container { width: 90%; height: 20px; background-color: #e0e0e0; border-radius: 10px; margin: 10px auto; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--score-normal-color); border-radius: 10px; transition: width 1.5s ease-out, background-color 0.8s ease-out; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DASS-21 抑郁-焦虑-压力量表</h1>
+        <div class="scoring-rules">
+            <h3>指导语</h3>
+            <p>请根据您 <strong>过去一周</strong> 的体验，阅读下面的每个陈述，选择最符合您情况的数字。</p>
+            <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
+        </div>
+        <form id="dassForm">
+            <div id="questionsContainer"></div>
+            <div class="button-group">
+                <button type="button" id="prevBtn" style="display:none;">⬅️ 上一题</button>
+                <button type="button" id="nextBtn">下一题 ➡️</button>
+                <button type="submit" id="submitBtn" style="display:none;">计算我的分数</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="result" class="container">
+        <h2>测试结果</h2>
+        <div class="result-item">
+            <p>抑郁 (D) 分数: <span class="scoreValue" id="depressionScore">0</span></p>
+            <div class="progress-bar-container"><div class="progress-bar-fill" id="depressionBar"></div></div>
+            <div id="depressionInterpretation"></div>
+        </div>
+        <div class="result-item">
+            <p>焦虑 (A) 分数: <span class="scoreValue" id="anxietyScore">0</span></p>
+            <div class="progress-bar-container"><div class="progress-bar-fill" id="anxietyBar"></div></div>
+            <div id="anxietyInterpretation"></div>
+        </div>
+        <div class="result-item">
+            <p>压力 (S) 分数: <span class="scoreValue" id="stressScore">0</span></p>
+            <div class="progress-bar-container"><div class="progress-bar-fill" id="stressBar"></div></div>
+            <div id="stressInterpretation"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questions = [
+            "1. 我发现自己很难平静下来。", "2. 我感到口干舌燥。", "3. 我似乎一点也无法体会到任何积极的情感。",
+            "4. 我感到呼吸困难（例如，呼吸急促，即使没怎么活动）。", "5. 我发现很难主动去开始做事。", "6. 我倾向于对事情反应过度。",
+            "7. 我感到身体颤抖（例如，手抖）。", "8. 我感觉自己消耗了很多精力。", "9. 我担心有些情况会让我恐慌，出洋相。",
+            "10. 我觉得我没什么可期待的。", "11. 我发现自己很容易被小事惹恼。", "12. 我觉得很难放松下来。",
+            "13. 我感到情绪低落和忧郁。", "14. 我无法容忍任何打扰我正在做的事情的东西。", "15. 我感到快要恐慌了。",
+            "16. 我对任何事情都提不起热情。", "17. 我觉得自己没什么价值。", "18. 我发现自己很容易被触怒。",
+            "19. 即使没有体力消耗，我也能感觉到心跳的变化（例如，心跳加速）。", "20. 我无缘无故地感到害怕。", "21. 我觉得生活没有意义。"
+        ];
+        const options = [ { text: "完全不符合", value: 0 }, { text: "有点符合，或偶尔符合", value: 1 }, { text: "比较符合，或经常符合", value: 2 }, { text: "完全符合，或总是符合", value: 3 }];
+        const scales = {
+            depression: [3, 5, 10, 13, 16, 17, 21],
+            anxiety: [2, 4, 7, 9, 15, 19, 20],
+            stress: [1, 6, 8, 11, 12, 14, 18]
+        };
+
+        let currentQuestionIndex = 0;
+        const totalQuestions = questions.length;
+        const questionsContainer = document.getElementById('questionsContainer');
+
+        questions.forEach((q, index) => {
+            let html = `<div class="question-container" id="q-${index}" style="display:none;"><p>${q}</p><div class="options">`;
+            options.forEach(opt => {
+                html += `<label><input type="radio" name="q${index}" value="${opt.value}" required> ${opt.text}</label>`;
+            });
+            html += `</div></div>`;
+            questionsContainer.innerHTML += html;
+        });
+
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('dassForm');
+        const resultDiv = document.getElementById('result');
+
+        function showQuestion(index) {
+            document.querySelectorAll('.question-container').forEach(el => el.style.display = 'none');
+            document.getElementById(`q-${index}`).style.display = 'block';
+            prevBtn.style.display = index > 0 ? 'block' : 'none';
+            nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+            submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return;
+            }
+            if (currentQuestionIndex < totalQuestions - 1) { currentQuestionIndex++; showQuestion(currentQuestionIndex); }
+        });
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) { currentQuestionIndex--; showQuestion(currentQuestionIndex); }
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return;
+            }
+            
+            let rawScores = { depression: 0, anxiety: 0, stress: 0 };
+            for (const scale in scales) {
+                scales[scale].forEach(qNum => {
+                    const selected = document.querySelector(`input[name="q${qNum - 1}"]:checked`);
+                    if (selected) rawScores[scale] += parseInt(selected.value);
+                });
+            }
+            
+            displayResults({
+                depression: rawScores.depression * 2,
+                anxiety: rawScores.anxiety * 2,
+                stress: rawScores.stress * 2
+            });
+        });
+
+        function getInterpretation(score, type) {
+            let levels, thresholds, advice;
+            if (type === 'depression') {
+                thresholds = { normal: 9, mild: 13, moderate: 20, severe: 27, extreme: 28 };
+                levels = { normal: "正常", mild: "轻度", moderate: "中度", severe: "重度", extreme: "极重度" };
+                advice = "这反映了您的情绪低落、绝望感和对生活失去兴趣的程度。";
+            } else if (type === 'anxiety') {
+                thresholds = { normal: 7, mild: 9, moderate: 14, severe: 19, extreme: 20 };
+                levels = { normal: "正常", mild: "轻度", moderate: "中度", severe: "重度", extreme: "极重度" };
+                advice = "这反映了您的自主神经系统兴奋、骨骼肌紧张和主观的焦虑感受。";
+            } else { // stress
+                thresholds = { normal: 14, mild: 18, moderate: 25, severe: 33, extreme: 34 };
+                levels = { normal: "正常", mild: "轻度", moderate: "中度", severe: "重度", extreme: "极重度" };
+                advice = "这反映了您在面对压力时的紧张、易怒和过度反应的倾向。";
+            }
+
+            let level, color;
+            if (score <= thresholds.normal) { level = levels.normal; color = 'var(--score-normal-color)'; }
+            else if (score <= thresholds.mild) { level = levels.mild; color = 'var(--score-mild-color)'; }
+            else if (score <= thresholds.moderate) { level = levels.moderate; color = 'var(--score-moderate-color)'; }
+            else if (score <= thresholds.severe) { level = levels.severe; color = 'var(--score-severe-color)'; }
+            else { level = levels.extreme; color = 'var(--score-extreme-color)'; }
+            
+            return { interpretation: `<p><strong>${level}水平：</strong>${advice}</p>`, barColor: color };
+        }
+
+        function displayResults(scores) {
+            form.style.display = 'none';
+            resultDiv.style.display = 'block';
+
+            const maxScores = { depression: 42, anxiety: 28, stress: 42 };
+
+            for (const type in scores) {
+                const score = scores[type];
+                const { interpretation, barColor } = getInterpretation(score, type);
+                document.getElementById(`${type}Score`).textContent = score;
+                document.getElementById(`${type}Interpretation`).innerHTML = interpretation;
+                
+                const percentage = (score / maxScores[type]) * 100;
+                const bar = document.getElementById(`${type}Bar`);
+                bar.style.width = percentage + '%';
+                bar.style.backgroundColor = barColor;
+            }
+        }
+
+        showQuestion(currentQuestionIndex);
+    });
+    </script>
+</body>
+</html>

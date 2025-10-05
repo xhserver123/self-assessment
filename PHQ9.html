@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHQ-9 抑郁症筛查量表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb; --secondary-color: #fc5c7d; --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff; --text-color: #333; --light-text-color: #666;
+            --border-radius: 12px; --shadow: 0 6px 15px rgba(0, 0, 0, 0.1); --transition-speed: 0.3s ease;
+            --score-normal-color: #4CAF50; --score-mild-color: #FFC107;
+            --score-moderate-color: #FF9800; --score-severe-color: #F44336; --score-very-severe-color: #d32f2f;
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        h1 { color: var(--primary-color); text-align: center; margin-bottom: 25px; font-size: 2.2em; letter-spacing: 1px; }
+        .scoring-rules { background-color: #e6f7ff; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius); color: var(--light-text-color); }
+        .scoring-rules h3 { color: var(--primary-color); margin-top: 0; font-size: 1.2em; }
+        .scoring-rules ul { list-style: none; padding: 0; }
+        .scoring-rules li { margin-bottom: 8px; padding-left: 15px; position: relative; }
+        .scoring-rules li::before { content: '•'; color: var(--secondary-color); position: absolute; left: 0; }
+        .question-container { margin-bottom: 20px; padding: 20px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transition: transform var(--transition-speed); }
+        .question-container:hover { transform: translateY(-3px); }
+        .question-container p { font-weight: bold; margin-bottom: 15px; color: var(--text-color); font-size: 1.1em; }
+        .options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 8px 0; transition: color var(--transition-speed); }
+        .options label:hover { color: var(--primary-color); }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; gap: 15px; margin-top: 30px; }
+        .button-group button { flex: 1; padding: 15px 20px; border: none; border-radius: var(--border-radius); font-size: 1.1em; cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); color: white; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .button-group button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+        #prevBtn { background-color: #ffc107; }
+        #prevBtn:hover { background-color: #e0a800; }
+        #nextBtn { background-color: var(--primary-color); }
+        #nextBtn:hover { background-color: #5a70e3; }
+        #submitBtn { background-color: var(--secondary-color); }
+        #submitBtn:hover { background-color: #e64a66; }
+        #result { margin-top: 40px; padding: 30px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); font-size: 1.2em; text-align: center; display: none; opacity: 0; transform: scale(0.9); animation: fadeInScale 0.6s forwards ease-out; border: 2px solid var(--primary-color); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        #scoreValue { font-size: 2.5em; color: var(--secondary-color); font-weight: bold; display: block; margin: 15px 0; transition: color var(--transition-speed); }
+        #scoreInterpretation { font-size: 1.1em; color: var(--light-text-color); margin-top: 20px; text-align: left; padding: 0 15px; }
+        #scoreInterpretation strong { color: var(--primary-color); }
+        .progress-bar-container { width: 90%; height: 20px; background-color: #e0e0e0; border-radius: 10px; margin: 15px auto; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--score-normal-color); border-radius: 10px; transition: width 1.5s ease-out, background-color 0.8s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PHQ-9 抑郁症筛查量表</h1>
+        <div class="scoring-rules">
+            <h3>评分标准</h3>
+            <p>请根据在<strong>过去的两周里</strong>，您有多经常受到以下问题所困扰，来选择最符合的选项。总分范围为0-27分。</p>
+            <ul>
+                <li><strong>0-4 分：</strong>无抑郁</li>
+                <li><strong>5-9 分：</strong>轻度抑郁</li>
+                <li><strong>10-14 分：</strong>中度抑郁</li>
+                <li><strong>15-19 分：</strong>中重度抑郁</li>
+                <li><strong>20-27 分：</strong>重度抑郁</li>
+            </ul>
+            <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
+        </div>
+        <form id="phq9Form">
+            <div id="questionsContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+            <div class="button-group">
+                <button type="button" id="prevBtn" style="display:none;">⬅️ 上一题</button>
+                <button type="button" id="nextBtn">下一题 ➡️</button>
+                <button type="submit" id="submitBtn" style="display:none;">计算我的分数</button>
+            </div>
+        </form>
+    </div>
+    <div id="result" class="container">
+        <h2>测试结果</h2>
+        <p>您的PHQ-9总分为：<span id="scoreValue">0</span></p>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div id="scoreInterpretation"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                { "q": "1. 做事时提不起劲或没有兴趣" },
+                { "q": "2. 感到心情低落、沮丧或绝望" },
+                { "q": "3. 入睡困难、睡不安稳或睡眠过多" },
+                { "q": "4. 感觉疲倦或没有活力" },
+                { "q": "5. 食欲不振或吃得太多" },
+                { "q": "6. 觉得自己很糟——或觉得自己很失败，或让自己或家人失望" },
+                { "q": "7. 对事物专注有困难，例如阅读报纸或看电视" },
+                { "q": "8. 动作或说话速度缓慢到别人已经察觉？或者正好相反——烦躁或坐立不安，动来动去的情况更胜于平常" },
+                { "q": "9. 有不如死掉或用某种方式伤害自己的念头" }
+            ];
+            const options = [
+                { "text": "完全没有", "value": 0 },
+                { "text": "有好几天", "value": 1 },
+                { "text": "一半以上的日子", "value": 2 },
+                { "text": "几乎每天", "value": 3 }
+            ];
+
+            let currentQuestionIndex = 0;
+            const totalQuestions = questions.length;
+            const questionsContainer = document.getElementById('questionsContainer');
+            
+            // Generate question HTML
+            questions.forEach((item, index) => {
+                let questionHTML = `<div class="question-container" id="q-${index}" style="display:none;">
+                    <p>${item.q}</p><div class="options">`;
+                options.forEach(opt => {
+                    questionHTML += `<label><input type="radio" name="q${index}" value="${opt.value}" required> ${opt.text} (${opt.value}分)</label>`;
+                });
+                questionHTML += `</div></div>`;
+                questionsContainer.innerHTML += questionHTML;
+            });
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('phq9Form');
+            const resultDiv = document.getElementById('result');
+            const scoreValueSpan = document.getElementById('scoreValue');
+            const scoreInterpretationDiv = document.getElementById('scoreInterpretation');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            function showQuestion(index) {
+                document.querySelectorAll('.question-container').forEach(el => el.style.display = 'none');
+                document.getElementById(`q-${index}`).style.display = 'block';
+                prevBtn.style.display = index > 0 ? 'block' : 'none';
+                nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+                submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                    alert(`请回答第 ${currentQuestionIndex + 1} 题！`);
+                    return;
+                }
+                if (currentQuestionIndex < totalQuestions - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                    alert(`请回答第 ${currentQuestionIndex + 1} 题！`);
+                    return;
+                }
+                
+                let totalScore = 0;
+                for (let i = 0; i < totalQuestions; i++) {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected) {
+                        totalScore += parseInt(selected.value);
+                    }
+                }
+                
+                displayResults(totalScore);
+            });
+
+            function getInterpretation(score) {
+                let title, advice, color;
+                if (score <= 4) {
+                    title = "无抑郁"; advice = "您的分数表明您目前没有明显的抑郁症状，情绪状态健康。请继续保持积极乐观的心态！"; color = 'var(--score-normal-color)';
+                } else if (score <= 9) {
+                    title = "轻度抑郁"; advice = "您的分数提示可能存在轻度抑郁情绪。建议关注自我情绪调节，多进行放松活动，与朋友家人沟通。如果症状持续，可考虑咨询专业人士。"; color = 'var(--score-mild-color)';
+                } else if (score <= 14) {
+                    title = "中度抑郁"; advice = "您的分数提示可能存在中度抑郁情绪。建议您认真对待，并寻求专业的心理咨询或医疗帮助，获得有效的支持和指导。"; color = 'var(--score-moderate-color)';
+                } else if (score <= 19) {
+                    title = "中重度抑郁"; advice = "您的分数提示可能存在中重度抑郁情绪。强烈建议您尽快寻求专业帮助，如心理治疗师或精神科医生，进行全面的评估和治疗。"; color = 'var(--score-severe-color)';
+                } else {
+                    title = "重度抑郁"; advice = "您的分数提示可能存在重度抑郁情绪。请务必立即寻求专业的医疗帮助，联系精神科医生或前往医院就诊。这不是您一个人的战斗，请让专业人士帮助您。"; color = 'var(--score-very-severe-color)';
+                }
+                return { interpretation: `<h3>${title}</h3><p>${advice}</p>`, barColor: color };
+            }
+
+            function displayResults(score) {
+                form.style.display = 'none';
+                resultDiv.style.display = 'block';
+                
+                const { interpretation, barColor } = getInterpretation(score);
+                scoreValueSpan.textContent = score;
+                scoreInterpretationDiv.innerHTML = interpretation;
+                
+                const percentage = (score / 27) * 100;
+                progressBarFill.style.width = percentage + '%';
+                progressBarFill.style.backgroundColor = barColor;
+            }
+
+            showQuestion(currentQuestionIndex);
+        });
+    </script>
+</body>
+</html>

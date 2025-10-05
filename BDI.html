@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDI 贝克抑郁自评量表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb; --secondary-color: #fc5c7d; --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff; --text-color: #333; --light-text-color: #666;
+            --border-radius: 12px; --shadow: 0 6px 15px rgba(0, 0, 0, 0.1); --transition-speed: 0.3s ease;
+            --score-normal-color: #4CAF50; --score-mild-color: #FFC107;
+            --score-moderate-color: #FF9800; --score-severe-color: #F44336;
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        h1 { color: var(--primary-color); text-align: center; margin-bottom: 25px; font-size: 2.2em; letter-spacing: 1px; }
+        .scoring-rules { background-color: #e6f7ff; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius); color: var(--light-text-color); }
+        .scoring-rules h3 { color: var(--primary-color); margin-top: 0; font-size: 1.2em; }
+        .scoring-rules ul { list-style: none; padding: 0; }
+        .scoring-rules li { margin-bottom: 8px; padding-left: 15px; position: relative; }
+        .scoring-rules li::before { content: '•'; color: var(--secondary-color); position: absolute; left: 0; }
+        .question-container { margin-bottom: 20px; padding: 20px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transition: transform var(--transition-speed); }
+        .question-container:hover { transform: translateY(-3px); }
+        .question-container p { font-weight: bold; margin-bottom: 15px; color: var(--text-color); font-size: 1.1em; }
+        .options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 8px 0; transition: color var(--transition-speed); }
+        .options label:hover { color: var(--primary-color); }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; gap: 15px; margin-top: 30px; }
+        .button-group button { flex: 1; padding: 15px 20px; border: none; border-radius: var(--border-radius); font-size: 1.1em; cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); color: white; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .button-group button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+        #prevBtn { background-color: #ffc107; }
+        #prevBtn:hover { background-color: #e0a800; }
+        #nextBtn { background-color: var(--primary-color); }
+        #nextBtn:hover { background-color: #5a70e3; }
+        #submitBtn { background-color: var(--secondary-color); }
+        #submitBtn:hover { background-color: #e64a66; }
+        #result { margin-top: 40px; padding: 30px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); font-size: 1.2em; text-align: center; display: none; opacity: 0; transform: scale(0.9); animation: fadeInScale 0.6s forwards ease-out; border: 2px solid var(--primary-color); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        #scoreValue { font-size: 2.5em; color: var(--secondary-color); font-weight: bold; display: block; margin: 15px 0; transition: color var(--transition-speed); }
+        #scoreInterpretation { font-size: 1.1em; color: var(--light-text-color); margin-top: 20px; text-align: left; padding: 0 15px; }
+        #scoreInterpretation strong { color: var(--primary-color); }
+        .progress-bar-container { width: 90%; height: 20px; background-color: #e0e0e0; border-radius: 10px; margin: 15px auto; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--score-normal-color); border-radius: 10px; transition: width 1.5s ease-out, background-color 0.8s ease-out; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BDI 贝克抑郁自评量表</h1>
+        <div class="scoring-rules">
+            <h3>评分标准</h3>
+            <p>请仔细阅读每一组题目，从四个句子中，选择一个最能代表您<strong>过去一周（包括今天）</strong>真实感受的句子。总分范围为0-63分。</p>
+            <ul>
+                <li><strong>0-13 分：</strong>无或极轻微的抑郁</li>
+                <li><strong>14-19 分：</strong>轻度抑郁</li>
+                <li><strong>20-28 分：</strong>中度抑郁</li>
+                <li><strong>29-63 分：</strong>重度抑郁</li>
+            </ul>
+            <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
+        </div>
+        <form id="bdiForm">
+            <div id="questionsContainer">
+                <!-- Questions will be dynamically inserted here -->
+            </div>
+            <div class="button-group">
+                <button type="button" id="prevBtn" style="display:none;">⬅️ 上一题</button>
+                <button type="button" id="nextBtn">下一题 ➡️</button>
+                <button type="submit" id="submitBtn" style="display:none;">计算我的分数</button>
+            </div>
+        </form>
+    </div>
+    <div id="result" class="container">
+        <h2>测试结果</h2>
+        <p>您的BDI总分为：<span id="scoreValue">0</span></p>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <div id="scoreInterpretation"></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                { title: "1. 悲伤", options: ["我不感到悲伤。", "我感到悲伤。", "我总是感到悲伤，而且无法摆脱。", "我感到极度悲伤或不快，甚至无法忍受。"] },
+                { title: "2. 悲观", options: ["我对未来并不特别悲观。", "我对未来感到悲观。", "我觉得我没有什么可期望的。", "我觉得未来毫无希望，情况也不可能改善。"] },
+                { title: "3. 失败感", options: ["我不觉得自己是个失败者。", "我觉得自己比一般人更失败。", "当我回首往事时，我看到的是一连串的失败。", "我觉得自己是完完全全的失败者。"] },
+                { title: "4. 缺乏满足感", options: ["我像往常一样能从事情中得到满足。", "我不能像以前那样从事情中得到乐趣。", "我再也不能从任何事情中得到真正的满足了。", "我对任何事情都感到不满意或厌烦。"] },
+                { title: "5. 罪恶感", options: ["我不觉得特别内疚。", "我大部分时间都感到内疚。", "我很多时候都感到内疚。", "我总是感到内疚。"] },
+                { title: "6. 被惩罚感", options: ["我不觉得自己正在受到惩罚。", "我觉得自己可能要受到惩罚。", "我期望受到惩罚。", "我觉得自己正在受到惩罚。"] },
+                { title: "7. 对自己的失望", options: ["我对自己不感到失望。", "我对自己感到失望。", "我对自己感到厌恶。", "我恨我自己。"] },
+                { title: "8. 自我批评", options: ["我不觉得自己比别人差。", "我会为自己的弱点或错误而批评自己。", "我总是为自己的过错而责备自己。", "我为发生的一切坏事而责备自己。"] },
+                { title: "9. 自杀念头或希望", options: ["我没有任何想伤害自己的念头。", "我有想过伤害自己，但我不会去做。", "我想伤害自己。", "如果有机会，我会伤害自己。"] },
+                { title: "10. 哭泣", options: ["我哭的次数不比平时多。", "我现在比以前哭得多了。", "我现在总是哭。", "我以前还能哭，但现在即使想哭也哭不出来了。"] },
+                { title: "11. 易怒", options: ["我不像以前那样容易被激怒。", "我比平时更容易被激怒。", "我现在大部分时间都感到烦躁。", "我现在总是感到烦躁。"] },
+                { title: "12. 对他人的兴趣", options: ["我没有失去对别人的兴趣。", "我对别人的兴趣比以前少了。", "我已经失去了对别人的大部分兴趣。", "我对别人已经完全失去了兴趣。"] },
+                { title: "13. 做决定的能力", options: ["我做决定的能力和以前一样好。", "我比以前更会推迟做决定。", "我做决定比以前更加困难。", "我再也无法做出任何决定了。"] },
+                { title: "14. 对自己外表的看法", options: ["我不觉得自己看起来比以前差。", "我担心自己看起来老了或没有吸引力。", "我觉得我的外貌发生了永久性的改变，使我看起来没有吸引力。", "我相信我看起来很丑陋。"] },
+                { title: "15. 工作能力", options: ["我能像以前一样工作。", "我需要额外的努力才能开始工作。", "我必须非常努力地强迫自己才能做任何事情。", "我根本无法做任何工作。"] },
+                { title: "16. 睡眠模式", options: ["我睡得和以前一样好。", "我不像以前那样睡得好。", "我比平时早醒1-2个小时，并且难以再次入睡。", "我比平时早醒好几个小时，并且无法再次入睡。"] },
+                { title: "17. 疲劳", options: ["我不比平时更容易疲劳。", "我比以前更容易疲劳。", "我做任何事情都感到疲劳。", "我太累了，什么也做不了。"] },
+                { title: "18. 食欲", options: ["我的食欲不比平时差。", "我的食欲不如以前好。", "我的食欲现在差多了。", "我一点食欲都没有了。"] },
+                { title: "19. 体重减轻", options: ["我最近没有减掉太多体重（如果有的话）。", "我减掉了超过5磅（约2.3公斤）的体重。", "我减掉了超过10磅（约4.5公斤）的体重。", "我减掉了超过15磅（约6.8公斤）的体重。"] },
+                { title: "20. 对健康的担忧", options: ["我不像平时那样担心我的健康。", "我担心身体上的问题，如疼痛、胃部不适或便秘。", "我非常担心身体上的问题，很难去想别的事情。", "我非常担心我的身体问题，以至于我无法思考任何其他事情。"] },
+                { title: "21. 对性的兴趣", options: ["我没有注意到我对性的兴趣有任何最近的变化。", "我对性的兴趣比以前少了。", "我现在对性的兴趣大大减少了。", "我已经完全失去了对性的兴趣。"] }
+            ];
+
+            let currentQuestionIndex = 0;
+            const totalQuestions = questions.length;
+            const questionsContainer = document.getElementById('questionsContainer');
+
+            questions.forEach((item, index) => {
+                let questionHTML = `<div class="question-container" id="q-${index}" style="display:none;">
+                    <p>${item.title}</p><div class="options">`;
+                item.options.forEach((opt, optIndex) => {
+                    questionHTML += `<label><input type="radio" name="q${index}" value="${optIndex}" required> ${opt}</label>`;
+                });
+                questionHTML += `</div></div>`;
+                questionsContainer.innerHTML += questionHTML;
+            });
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('bdiForm');
+            const resultDiv = document.getElementById('result');
+            const scoreValueSpan = document.getElementById('scoreValue');
+            const scoreInterpretationDiv = document.getElementById('scoreInterpretation');
+            const progressBarFill = document.getElementById('progressBarFill');
+
+            function showQuestion(index) {
+                document.querySelectorAll('.question-container').forEach(el => el.style.display = 'none');
+                document.getElementById(`q-${index}`).style.display = 'block';
+                prevBtn.style.display = index > 0 ? 'block' : 'none';
+                nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+                submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                    alert(`请回答第 ${currentQuestionIndex + 1} 题！`);
+                    return;
+                }
+                if (currentQuestionIndex < totalQuestions - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                 if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) {
+                    alert(`请回答第 ${currentQuestionIndex + 1} 题！`);
+                    return;
+                }
+                let totalScore = 0;
+                for (let i = 0; i < totalQuestions; i++) {
+                    const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (selected) {
+                        totalScore += parseInt(selected.value);
+                    }
+                }
+                displayResults(totalScore);
+            });
+            
+            function getInterpretation(score) {
+                let title, advice, color;
+                if (score <= 13) {
+                    title = "无或极轻微的抑郁"; advice = "您的分数表明您目前没有或仅有极轻微的抑郁症状，情绪状态基本稳定。"; color = 'var(--score-normal-color)';
+                } else if (score <= 19) {
+                    title = "轻度抑郁"; advice = "您的分数提示可能存在轻度抑郁。这是需要关注的信号，建议您调整生活作息，增加社交活动，并观察情绪变化。"; color = 'var(--score-mild-color)';
+                } else if (score <= 28) {
+                    title = "中度抑郁"; advice = "您的分数提示可能存在中度抑郁。这个阶段的情绪困扰可能会影响您的日常生活，建议您寻求专业心理咨询师的帮助。"; color = 'var(--score-moderate-color)';
+                } else {
+                    title = "重度抑郁"; advice = "您的分数提示可能存在重度抑郁。请务必高度重视，并立即寻求专业的精神科医生进行诊断和治疗，这是非常重要的一步。"; color = 'var(--score-severe-color)';
+                }
+                return { interpretation: `<h3>${title}</h3><p>${advice}</p>`, barColor: color };
+            }
+
+            function displayResults(score) {
+                form.style.display = 'none';
+                resultDiv.style.display = 'block';
+                const { interpretation, barColor } = getInterpretation(score);
+                scoreValueSpan.textContent = score;
+                scoreInterpretationDiv.innerHTML = interpretation;
+                const percentage = (score / 63) * 100;
+                progressBarFill.style.width = percentage + '%';
+                progressBarFill.style.backgroundColor = barColor;
+            }
+
+            showQuestion(currentQuestionIndex);
+        });
+    </script>
+</body>
+</html>

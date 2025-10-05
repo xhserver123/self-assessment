@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDS抑郁自评量表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb; --secondary-color: #fc5c7d; --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff; --text-color: #333; --light-text-color: #666;
+            --border-radius: 12px; --shadow: 0 6px 15px rgba(0, 0, 0, 0.1); --transition-speed: 0.3s ease;
+            --score-normal-color: #4CAF50; --score-mild-color: #FFC107;
+            --score-moderate-color: #FF9800; --score-severe-color: #F44336;
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        h1 { color: var(--primary-color); text-align: center; margin-bottom: 25px; font-size: 2.2em; letter-spacing: 1px; }
+        .scoring-rules { background-color: #e6f7ff; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius); color: var(--light-text-color); }
+        .scoring-rules h3 { color: var(--primary-color); margin-top: 0; font-size: 1.2em; }
+        .scoring-rules ul { list-style: none; padding: 0; }
+        .scoring-rules li { margin-bottom: 8px; padding-left: 15px; position: relative; }
+        .scoring-rules li::before { content: '•'; color: var(--secondary-color); position: absolute; left: 0; }
+        .question-container { margin-bottom: 20px; padding: 20px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); transition: transform var(--transition-speed); }
+        .question-container:hover { transform: translateY(-3px); }
+        .question-container p { font-weight: bold; margin-bottom: 15px; color: var(--text-color); font-size: 1.1em; }
+        .options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 8px 0; transition: color var(--transition-speed); }
+        .options label:hover { color: var(--primary-color); }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; gap: 15px; margin-top: 30px; }
+        .button-group button { flex: 1; padding: 15px 20px; border: none; border-radius: var(--border-radius); font-size: 1.1em; cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); color: white; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .button-group button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+        #prevBtn { background-color: #ffc107; } #prevBtn:hover { background-color: #e0a800; }
+        #nextBtn { background-color: var(--primary-color); } #nextBtn:hover { background-color: #5a70e3; }
+        #submitBtn { background-color: var(--secondary-color); } #submitBtn:hover { background-color: #e64a66; }
+        #result { margin-top: 40px; padding: 30px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: var(--shadow); font-size: 1.2em; text-align: center; display: none; opacity: 0; transform: scale(0.9); animation: fadeInScale 0.6s forwards ease-out; border: 2px solid var(--primary-color); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        #scoreValue { font-size: 2.5em; color: var(--secondary-color); font-weight: bold; display: block; margin: 15px 0; transition: color var(--transition-speed); }
+        #scoreInterpretation { font-size: 1.1em; color: var(--light-text-color); margin-top: 20px; text-align: left; padding: 0 15px; }
+        #scoreInterpretation strong { color: var(--primary-color); }
+        .progress-category-labels { display: flex; justify-content: space-between; width: 90%; margin: 0 auto; position: relative; height: 25px; margin-bottom: 5px; box-sizing: border-box; }
+        .progress-category-labels .label-text { position: absolute; white-space: nowrap; padding: 2px 8px; border-radius: 5px; font-weight: bold; color: white; font-size: 0.8em; text-shadow: 0 1px 2px rgba(0,0,0,0.2); opacity: 0; transition: opacity 0.8s ease-out, top 0.8s ease-out; animation: labelFadeIn 1s forwards 1.5s; top: 0px; transform: translateX(-50%); }
+        @keyframes labelFadeIn { from { opacity: 0; top: 10px; } to { opacity: 1; top: 0px; } }
+        .progress-category-labels .label-normal { background-color: var(--score-normal-color); left: 26.5%; } .progress-category-labels .label-mild { background-color: var(--score-mild-color); left: 57.5%; } .progress-category-labels .label-moderate { background-color: var(--score-moderate-color); left: 68%; } .progress-category-labels .label-severe { background-color: var(--score-severe-color); left: 86.5%; }
+        .progress-bar-container { width: 90%; height: 20px; background-color: #e0e0e0; border-radius: 10px; margin: 5px auto 5px auto; overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--score-normal-color); border-radius: 10px; transition: width 1.5s ease-out, background-color 0.8s ease-out; position: relative; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3); }
+        .progress-score-display { color: white; font-weight: bold; font-size: 0.9em; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); white-space: nowrap; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .progress-markers { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; pointer-events: none; }
+        .progress-marker { position: absolute; height: 100%; width: 1px; background-color: rgba(255, 255, 255, 0.6); z-index: 1; opacity: 0.8; }
+        .progress-marker.m53 { left: 53%; background-color: rgba(0, 0, 0, 0.4); } .progress-marker.m63 { left: 63%; } .progress-marker.m73 { left: 73%; }
+        .progress-scale-labels { display: flex; justify-content: space-between; width: 90%; margin: 5px auto 0 auto; font-size: 0.9em; color: var(--light-text-color); position: relative; height: 20px; }
+        .progress-scale-labels span { position: absolute; transform: translateX(-50%); top: 0; }
+        .progress-scale-labels .label-0 { left: 0%; transform: translateX(0%); } .progress-scale-labels .label-50 { left: 53%; } .progress-scale-labels .label-60 { left: 63%; } .progress-scale-labels .label-70 { left: 73%; } .progress-scale-labels .label-100 { left: 100%; transform: translateX(-100%); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SDS抑郁自评量表</h1>
+        <div class="scoring-rules">
+            <h3>评分标准</h3>
+            <p>以下是根据您的SDS标准分对抑郁程度的初步评估：</p>
+            <ul>
+                <li><strong>标准分低于53分：</strong> 无抑郁症状。</li>
+                <li><strong>53分 ~ 62分：</strong> 轻度抑郁。</li>
+                <li><strong>63分 ~ 72分：</strong> 中度抑郁。</li>
+                <li><strong>73分及以上：</strong> 重度抑郁。</li>
+            </ul>
+            <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
+        </div>
+        <form id="sdsForm">
+            <div id="questionsContainer">
+                <!-- 题目将在这里动态加载 -->
+            </div>
+            <div class="button-group">
+                <button type="button" id="prevBtn" style="display:none;">⬅️ 上一题</button>
+                <button type="button" id="nextBtn" style="display:none;">下一题 ➡️</button>
+                <button type="submit" id="submitBtn" style="display:none;">计算我的分数</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="result" class="container">
+        <h2>测试结果</h2>
+        <p>您的SDS标准分为：<span id="scoreValue">0.00</span></p>
+        <div class="progress-category-labels" id="progressCategoryLabels">
+            <span class="label-text label-normal">无抑郁</span>
+            <span class="label-text label-mild">轻度</span>
+            <span class="label-text label-moderate">中度</span>
+            <span class="label-text label-severe">重度</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progressBarFill">
+                <span class="progress-score-display">0.00</span>
+            </div>
+            <div class="progress-markers">
+                <div class="progress-marker m53"></div><div class="progress-marker m63"></div><div class="progress-marker m73"></div>
+            </div>
+        </div>
+        <div class="progress-scale-labels" id="progressScaleLabels">
+            <span class="label-0">0</span><span class="label-50">53</span>
+            <span class="label-60">63</span><span class="label-70">73</span>
+            <span class="label-100">100</span>
+        </div>
+        <div id="scoreInterpretation"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const questions = [
+                "1. 我觉得闷闷不乐，情绪低沉。", "2. 我觉得一天之中早晨最好。", "3. 我一阵阵地哭出来或觉得想哭。",
+                "4. 我晚上睡眠不好。", "5. 我吃的跟平常一样多。", "6. 我与异性亲密接触时和以往一样感到愉快。",
+                "7. 我发觉我的体重在下降。", "8. 我为便秘烦恼。", "9. 我的心跳比平时快。",
+                "10. 我无缘无故地感到疲乏。", "11. 我的头脑跟平常一样清楚。", "12. 我做事情像平常一样不感到困难。",
+                "13. 我觉得不安而平静不下来。", "14. 我对未来感到有希望。", "15. 我比平常容易发脾气。",
+                "16. 我觉得决定什么事很容易。", "17. 我感到自己是有用的和不可缺少的人。", "18. 我觉得我的生活很有意思。",
+                "19. 我认为如果我死了，别人会生活得好些。", "20. 我平常喜欢的东西我仍然喜欢。"
+            ];
+            const reverseScoringQuestions = [2, 5, 6, 11, 12, 14, 16, 17, 18, 20];
+            const totalQuestions = questions.length;
+            let currentQuestionIndex = 0;
+
+            const questionsContainer = document.getElementById('questionsContainer');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const sdsForm = document.getElementById('sdsForm');
+            const resultDiv = document.getElementById('result');
+            const scoreValueSpan = document.getElementById('scoreValue');
+            const scoreInterpretationDiv = document.getElementById('scoreInterpretation');
+            const progressBarFill = document.getElementById('progressBarFill');
+            const progressScoreDisplay = progressBarFill.querySelector('.progress-score-display');
+
+            // 动态生成题目
+            questions.forEach((qText, index) => {
+                const questionHTML = `
+                    <div class="question-container" id="q-${index}" style="display:none;">
+                        <p>${qText}</p>
+                        <div class="options">
+                            <label><input type="radio" name="q${index}" value="A" required> A. 没有或很少时间有</label>
+                            <label><input type="radio" name="q${index}" value="B"> B. 有时有</label>
+                            <label><input type="radio" name="q${index}" value="C"> C. 大部分时间有</label>
+                            <label><input type="radio" name="q${index}" value="D"> D. 绝大部分或全部时间都有</label>
+                        </div>
+                    </div>`;
+                questionsContainer.innerHTML += questionHTML;
+            });
+
+            function showQuestion(index) {
+                document.querySelectorAll('.question-container').forEach(el => el.style.display = 'none');
+                document.getElementById(`q-${index}`).style.display = 'block';
+                prevBtn.style.display = index > 0 ? 'block' : 'none';
+                nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+                submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+            }
+
+            function getScore(value, isReverse) {
+                let score;
+                switch (value) { case 'A': score = 1; break; case 'B': score = 2; break; case 'C': score = 3; break; case 'D': score = 4; break; default: score = 0; }
+                return isReverse ? (5 - score) : score;
+            }
+
+            function animateScore(start, end, duration, targetElement, isProgressBarScore = false) {
+                let startTime = null;
+                const step = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const progress = Math.min((timestamp - startTime) / duration, 1);
+                    const currentScore = start + (end - start) * progress;
+                    targetElement.textContent = currentScore.toFixed(2);
+                    if (isProgressBarScore) { progressScoreDisplay.style.opacity = (currentScore > 0.5) ? '1' : '0'; }
+                    if (progress < 1) { requestAnimationFrame(step); }
+                    else { if (isProgressBarScore) progressScoreDisplay.style.opacity = (end > 0.5) ? '1' : '0'; }
+                };
+                requestAnimationFrame(step);
+            }
+
+            function updateProgressBarColor(score) {
+                let color;
+                if (score < 53) color = 'var(--score-normal-color)';
+                else if (score < 63) color = 'var(--score-mild-color)';
+                else if (score < 73) color = 'var(--score-moderate-color)';
+                else color = 'var(--score-severe-color)';
+                progressBarFill.style.backgroundColor = color;
+            }
+
+            function getInterpretation(score) {
+                let title, advice;
+                score = parseFloat(score.toFixed(2));
+                if (score < 53) { title = "无抑郁"; advice = `您的得分为 <strong>${score}</strong> 分，这表明您目前的情绪状态非常积极健康，基本没有抑郁倾向，请继续保持这份好心情！`; }
+                else if (score < 63) { title = "轻度抑郁情绪"; advice = `您的得分为 <strong>${score}</strong> 分，这可能提示您目前存在轻度抑郁情绪。建议您多与朋友家人沟通、保持规律作息、进行适度运动。如果情绪持续，请考虑寻求专业心理咨询。`; }
+                else if (score < 73) { title = "中度抑郁情绪"; advice = `您的得分为 <strong>${score}</strong> 分，这可能提示您目前存在中度抑郁情绪。请务必重视自己的感受，强烈建议您尽快咨询心理医生或精神科医生。记住，寻求帮助是勇敢的表现！`; }
+                else { title = "重度抑郁情绪"; advice = `您的得分为 <strong>${score}</strong> 分，这可能提示您目前存在重度抑郁情绪。请您一定要非常重视，并立刻寻求专业医疗帮助！如果您有任何自伤想法，请立即拨打紧急求助电话。`; }
+                return `<h3>${title}</h3><p>${advice}</p>`;
+            }
+
+            nextBtn.addEventListener('click', function() {
+                if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) { alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return; }
+                if (currentQuestionIndex < totalQuestions - 1) { currentQuestionIndex++; showQuestion(currentQuestionIndex); }
+            });
+
+            prevBtn.addEventListener('click', function() {
+                if (currentQuestionIndex > 0) { currentQuestionIndex--; showQuestion(currentQuestionIndex); }
+            });
+
+            sdsForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) { alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return; }
+                
+                let totalRawScore = 0;
+                for (let i = 0; i < totalQuestions; i++) {
+                    const questionNumber = i + 1;
+                    const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                    const isReverse = reverseScoringQuestions.includes(questionNumber);
+                    totalRawScore += getScore(selectedOption.value, isReverse);
+                }
+                const standardScore = (totalRawScore / 80) * 100;
+                
+                sdsForm.style.display = 'none';
+                resultDiv.style.display = 'block';
+                animateScore(0, standardScore, 1500, scoreValueSpan);
+                animateScore(0, standardScore, 1500, progressScoreDisplay, true);
+                progressBarFill.style.width = Math.min(100, standardScore) + '%';
+                updateProgressBarColor(standardScore);
+                scoreInterpretationDiv.innerHTML = getInterpretation(standardScore);
+            });
+
+            showQuestion(currentQuestionIndex);
+        });
+    </script>
+</body>
+</html>

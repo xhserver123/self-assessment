@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心理健康自评量表中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb;
+            --secondary-color: #fc5c7d;
+            --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff;
+            --text-color: #333;
+            --light-text-color: #666;
+            --border-radius: 12px;
+            --shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s ease;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--card-bg-color);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.8em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--light-text-color);
+            margin-bottom: 40px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+        }
+
+        .card {
+            background-color: #fafafa; /* Give cards a slight background color to stand out */
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        .card .description {
+            color: var(--light-text-color);
+            font-size: 1em;
+            flex-grow: 1;
+            margin-bottom: 25px;
+        }
+
+        .start-button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            text-align: center;
+            transition: background-color var(--transition-speed);
+        }
+
+        .card:hover .start-button {
+            background-color: #e64a66;
+        }
+
+        footer {
+            margin-top: 50px;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>心理健康自评中心</h1>
+        <p class="subtitle">通过以下工具，您可以更好地了解自己近期的情绪与心理状态。请选择一项开始评估。</p>
+        
+        <div class="card-grid">
+            <!-- 请确保链接的文件名与你保存的文件名一致 -->
+            <a href="PHQ9.html" class="card">
+                <div>
+                    <h2>PHQ-9</h2>
+                    <p class="description">一个快速筛查工具，用于评估过去两周内抑郁症状的严重程度，简单快捷。</p>
+                </div>
+                <span class="start-button">开始评估 &rarr;</span>
+            </a>
+
+            <a href="BDI.html" class="card">
+                <div>
+                    <h2>BDI</h2>
+                    <p class="description">从认知、情感、行为等多个具体方面，评估过去一周的感受，内容更详细。</p>
+                </div>
+                <span class="start-button">开始评估 &rarr;</span>
+            </a>
+
+            <a href="DASS21.html" class="card">
+                <div>
+                    <h2>DASS-21</h2>
+                    <p class="description">可以同时评估抑郁、焦虑和压力三个核心维度，让结果更加全面。</p>
+                </div>
+                <span class="start-button">开始评估 &rarr;</span>
+            </a>
+
+            <a href="SDS.html" class="card">
+                <div>
+                    <h2>SDS</h2>
+                    <p class="description">经典的抑郁自评量表，通过评估症状出现的频次来反映抑郁的主观感受。</p>
+                </div>
+                <span class="start-button">开始评估 &rarr;</span>
+            </a>
+        </div>
+
+        <footer>
+            <p>请注意：本中心提供的量表仅为自我评估参考，不能替代专业的医疗诊断。若您有持续的心理困扰，请及时寻求专业帮助。</p>
+            <p>由 XHServer 提供</p>
+        </footer>
+    </div>
+</body>
+</html>
