@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCL-90 症状自评量表</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6a82fb; --secondary-color: #fc5c7d; --bg-color: #f0f2f5;
+            --card-bg-color: #ffffff; --text-color: #333; --light-text-color: #666;
+            --border-radius: 12px; --shadow: 0 6px 15px rgba(0, 0, 0, 0.1); --transition-speed: 0.3s ease;
+            --score-positive-color: #F44336; --score-normal-color: #4CAF50;
+        }
+        body { font-family: 'Noto Sans SC', sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { max-width: 650px; width: 100%; background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+        h1, h2 { color: var(--primary-color); text-align: center; }
+        h1 { font-size: 2.2em; letter-spacing: 1px; margin-bottom: 25px; }
+        h3 { color: var(--primary-color); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 30px; }
+        .scoring-rules { background-color: #e6f7ff; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 25px; border-radius: var(--border-radius); color: var(--light-text-color); }
+        .question-container { margin-bottom: 20px; padding: 20px; background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); }
+        .question-container p { font-weight: bold; margin-bottom: 15px; color: var(--text-color); font-size: 1.1em; }
+        .options label { display: block; margin-bottom: 10px; cursor: pointer; padding: 8px 0; transition: color var(--transition-speed); }
+        .options label:hover { color: var(--primary-color); }
+        .options input[type="radio"] { margin-right: 10px; transform: scale(1.2); accent-color: var(--primary-color); }
+        .button-group { display: flex; justify-content: space-between; gap: 15px; margin-top: 30px; }
+        .button-group button { flex: 1; padding: 15px 20px; border: none; border-radius: var(--border-radius); font-size: 1.1em; cursor: pointer; transition: background-color var(--transition-speed), transform var(--transition-speed); color: white; font-weight: bold; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        #prevBtn { background-color: #ffc107; } #nextBtn { background-color: var(--primary-color); } #submitBtn { background-color: var(--secondary-color); }
+        #result { text-align: left; display: none; }
+        .summary-item { font-size: 1.1em; margin-bottom: 10px; }
+        .summary-item .value { font-weight: bold; color: var(--secondary-color); font-size: 1.2em; }
+        .summary-item .pass { color: var(--score-normal-color); }
+        .summary-item .fail { color: var(--score-positive-color); }
+        .factor-item { margin-bottom: 15px; }
+        .factor-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 1.1em; }
+        .factor-score { font-weight: bold; }
+        .progress-bar-container { width: 100%; height: 18px; background-color: #e0e0e0; border-radius: 9px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0%; border-radius: 9px; transition: width 1.5s ease-out, background-color 0.8s ease-out; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SCL-90 症状自评量表</h1>
+        <div class="scoring-rules">
+            <h3>指导语</h3>
+            <p>请仔细阅读每一组题目，从四个选项中，选择一个最能代表您<strong>过去一周（包括今天）</strong>真实感受的选项。总分范围为90-450分。</p>
+            <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
+        </div>
+        <form id="scl90Form">
+            <div id="questionsContainer"></div>
+            <div class="button-group">
+                <button type="button" id="prevBtn" style="display:none;">⬅️ 上一题</button>
+                <button type="button" id="nextBtn" style="display:none;">下一题 ➡️</button>
+                <button type="submit" id="submitBtn" style="display:none;">查看结果</button>
+            </div>
+        </form>
+
+        <div id="result">
+            <h2>测试结果</h2>
+            <div id="summary">
+                <h3>总体情况筛查</h3>
+                <p class="summary-item" id="totalScoreResult"></p>
+                <p class="summary-item" id="positiveItemsResult"></p>
+                <p class="summary-item" id="factorResult"></p>
+            </div>
+            <div id="factorDetails">
+                <h3>各维度（因子）平均分</h3>
+            </div>
+            <div id="otherItemsInfo">
+                 <h3>其他项目</h3>
+                 <p style="color: var(--light-text-color);">其他项目（主要反映睡眠、饮食等）得分较高时也需关注，本次测试中这些项目的原始分值为：<span id="otherScores"></span>。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const questions = [
+            "1. 头痛", "2. 神经过敏，心中不踏实", "3. 头脑中有不必要的想法或字句盘旋", "4. 头昏或昏倒", "5. 对异性的兴趣减退", "6. 对旁人责备求全", "7. 感到别人能控制您的思想", "8. 责怪别人制造麻烦", "9. 忘性大", "10. 担心自己的衣饰整齐及仪态的端正", "11. 容易烦恼和激动", "12. 胸痛", "13. 害怕空旷的场所或街道", "14. 感到自己的精力下降，活动减慢", "15. 想结束自己的生命", "16. 听到旁人听不到的声音", "17. 发抖", "18. 感到大多数人都不可信任", "19. 胃口不好", "20. 容易哭泣", "21. 同异性相处时感到害羞不自在", "22. 感到受骗，中了圈套或有人想抓住您", "23. 无缘无故地突然感到害怕", "24. 自己不能控制地大发脾气", "25. 怕单独出门", "26. 经常责怪自己", "27. 腰痛", "28. 感到难以完成任务", "29. 感到孤独", "30. 感到苦闷", "31. 过分担忧", "32. 对事物不感兴趣", "33. 感到害怕", "34. 我的感情容易受到伤害", "35. 旁人能知道您的私下想法", "36. 感到别人不理解您、不同情您", "37. 感到人们对您不友好，不喜欢您", "38. 做事必须做得很慢以保证做得正确", "39. 心跳得很厉害", "40. 恶心或胃部不舒服", "41. 感到比不上他人", "42. 肌肉酸痛", "43. 感到有人在监视您、谈论您", "44. 难以入睡", "45. 做事必须反复检查", "46. 难以做出决定", "47. 怕乘电车、公共汽车、地铁或火车", "48. 呼吸有困难", "49. 一阵阵冷一阵阵热", "50. 因为感到害怕而避开某些东西、场合或活动", "51. 脑子变空了", "52. 身体发麻或刺痛", "53. 喉咙里有梗塞感", "54. 感到前途没有希望", "55. 不能集中注意力", "56. 感到身体的某一部分软弱无力", "57. 感到紧张、坐立不安", "58. 感到手或脚发重", "59. 想到死亡的事", "60. 吃得太多", "61. 当别人看着您或谈论您时感到不自在", "62. 有一些别人没有的想法或念头", "63. 有想打人或伤害他人的冲动", "64. 醒得太早", "65. 必须反复洗手、点数目或触摸某些东西", "66. 睡得不稳，不深", "67. 有想摔东西或破坏东西的冲动", "68. 有一些别人没有的奇怪想法", "69. 感到对别人神经过敏", "70. 在商店或电影院等人多的地方感到不自在", "71. 感到任何事情都很困难", "72. 一阵阵恐惧或惊恐", "73. 感到在公共场合吃东西很不舒服", "74. 经常与人争论", "75. 单独一人时神经很紧张", "76. 别人对您的成绩没有做出恰当的评价", "77. 即使和别人在一起也感到孤单", "78. 感到坐立不安，难以维持一个姿势", "79. 感到自己没有什么价值", "80. 感到熟悉的东西变成陌生或不像是真的", "81. 大叫或摔东西", "82. 害怕会在公共场合昏倒", "83. 感到别人想占您的便宜", "84. 为一些有关“性”的想法而很苦恼", "85. 您认为应该因为自己的过错而受到惩罚", "86. 感到要很快把事情做完", "87. 感到自己的身体有严重问题", "88. 从未感到和其他人很亲近", "89. 感到自己有罪", "90. 感到自己的脑子有毛病"
+        ];
+        const options = [
+            { text: "从无", value: 1 }, { text: "轻度", value: 2 }, { text: "中度", value: 3 },
+            { text: "偏重", value: 4 }, { text: "严重", value: 5 }
+        ];
+        const factors = {
+            "躯体化": [1, 4, 12, 27, 40, 42, 48, 49, 52, 53, 56, 58], "强迫症状": [3, 9, 10, 28, 38, 45, 46, 51, 55, 65],
+            "人际关系敏感": [6, 21, 34, 36, 37, 41, 61, 69, 73], "抑郁": [5, 14, 15, 20, 22, 26, 29, 30, 31, 32, 54, 71, 79],
+            "焦虑": [2, 17, 23, 33, 39, 57, 72, 78, 80, 86], "敌对": [11, 24, 63, 67, 74, 81],
+            "恐怖": [13, 25, 47, 50, 70, 75, 82], "偏执": [8, 18, 43, 68, 76, 83],
+            "精神病性": [7, 16, 35, 62, 77, 84, 85, 87, 88, 90], "其他": [19, 44, 59, 60, 64, 66, 89]
+        };
+
+        let currentQuestionIndex = 0;
+        const totalQuestions = questions.length;
+        const questionsContainer = document.getElementById('questionsContainer');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('scl90Form');
+        const resultDiv = document.getElementById('result');
+
+        questions.forEach((qText, index) => {
+            let html = `<div class="question-container" id="q-${index}" style="display:none;"><p>${qText}</p><div class="options">`;
+            options.forEach(opt => {
+                // 移除这里的 (${opt.value}分)
+                html += `<label><input type="radio" name="q${index}" value="${opt.value}" required> ${opt.text}</label>`;
+            });
+            html += `</div></div>`;
+            questionsContainer.innerHTML += html;
+        });
+
+        function showQuestion(index) {
+            document.querySelectorAll('.question-container').forEach(el => el.style.display = 'none');
+            document.getElementById(`q-${index}`).style.display = 'block';
+            prevBtn.style.display = index > 0 ? 'block' : 'none';
+            nextBtn.style.display = index < totalQuestions - 1 ? 'block' : 'none';
+            submitBtn.style.display = index === totalQuestions - 1 ? 'block' : 'none';
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) { alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return; }
+            if (currentQuestionIndex < totalQuestions - 1) { currentQuestionIndex++; showQuestion(currentQuestionIndex); }
+        });
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) { currentQuestionIndex--; showQuestion(currentQuestionIndex); }
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            if (!document.querySelector(`input[name="q${currentQuestionIndex}"]:checked`)) { alert(`请回答第 ${currentQuestionIndex + 1} 题！`); return; }
+            
+            const scores = [];
+            for (let i = 0; i < totalQuestions; i++) {
+                const selected = document.querySelector(`input[name="q${i}"]:checked`);
+                scores.push(parseInt(selected.value));
+            }
+            displayResults(scores);
+        });
+
+        function displayResults(scores) {
+            form.style.display = 'none';
+            resultDiv.style.display = 'block';
+
+            const totalScore = scores.reduce((sum, score) => sum + score, 0);
+            const totalScorePass = totalScore <= 160;
+            document.getElementById('totalScoreResult').innerHTML = `总分：<span class="value ${totalScorePass ? 'pass' : 'fail'}">${totalScore}</span> (标准: ≤160)`;
+
+            const positiveItems = scores.filter(score => score >= 2).length;
+            const positiveItemsPass = positiveItems <= 43;
+            document.getElementById('positiveItemsResult').innerHTML = `阳性项目数：<span class="value ${positiveItemsPass ? 'pass' : 'fail'}">${positiveItems}</span> (标准: ≤43)`;
+
+            const factorDetailsContainer = document.getElementById('factorDetails');
+            let anyFactorFail = false;
+            for (const factorName in factors) {
+                if (factorName === "其他") continue;
+                const itemIndices = factors[factorName];
+                const factorSum = itemIndices.reduce((sum, index) => sum + scores[index - 1], 0);
+                const factorAvg = factorSum / itemIndices.length;
+                
+                if (factorAvg > 2) anyFactorFail = true;
+                const factorHTML = `
+                    <div class="factor-item">
+                        <div class="factor-info">
+                            <span class="factor-name">${factorName}</span>
+                            <span class="factor-score" style="color:${factorAvg > 2 ? 'var(--score-positive-color)' : 'var(--score-normal-color)'}">${factorAvg.toFixed(2)}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" data-score="${factorAvg}"></div>
+                        </div>
+                    </div>`;
+                factorDetailsContainer.innerHTML += factorHTML;
+            }
+            
+            const factorResultPass = !anyFactorFail;
+            document.getElementById('factorResult').innerHTML = `任意因子分：<span class="value ${factorResultPass ? 'pass' : 'fail'}">${factorResultPass ? '通过' : '未通过'}</span> (标准: 所有因子分≤2)`;
+
+            document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+                const score = parseFloat(bar.getAttribute('data-score'));
+                bar.style.width = (score / 5) * 100 + '%';
+                bar.style.backgroundColor = score > 2 ? 'var(--score-positive-color)' : 'var(--score-normal-color)';
+            });
+
+            const otherScores = factors["其他"].map(index => `第${index}题:${scores[index-1]}分`).join('；');
+            document.getElementById('otherScores').textContent = otherScores;
+        }
+
+        showQuestion(currentQuestionIndex);
+    });
+    </script>
+</body>
+</html>```
