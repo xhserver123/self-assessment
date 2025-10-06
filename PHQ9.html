@@ -49,15 +49,8 @@
     <div class="container">
         <h1>PHQ-9 抑郁症筛查量表</h1>
         <div class="scoring-rules">
-            <h3>评分标准</h3>
-            <p>请根据在<strong>过去的两周里</strong>，您有多经常受到以下问题所困扰，来选择最符合的选项。总分范围为0-27分。</p>
-            <ul>
-                <li><strong>0-4 分：</strong>无抑郁</li>
-                <li><strong>5-9 分：</strong>轻度抑郁</li>
-                <li><strong>10-14 分：</strong>中度抑郁</li>
-                <li><strong>15-19 分：</strong>中重度抑郁</li>
-                <li><strong>20-27 分：</strong>重度抑郁</li>
-            </ul>
+            <h3>指导语</h3>
+            <p>请仔细阅读每一组题目，从四个选项中，选择一个最能代表您<strong>过去两周（包括今天）</strong>真实感受的选项。总分范围为0-27分。</p>
             <p>请注意：本量表仅供自我评估参考，不能替代专业诊断。如有疑虑，请务必咨询专业医生或心理咨询师。</p>
         </div>
         <form id="phq9Form">
@@ -103,12 +96,12 @@
             const totalQuestions = questions.length;
             const questionsContainer = document.getElementById('questionsContainer');
             
-            // Generate question HTML
             questions.forEach((item, index) => {
                 let questionHTML = `<div class="question-container" id="q-${index}" style="display:none;">
                     <p>${item.q}</p><div class="options">`;
                 options.forEach(opt => {
-                    questionHTML += `<label><input type="radio" name="q${index}" value="${opt.value}" required> ${opt.text} (${opt.value}分)</label>`;
+                    // 移除这里的 (${opt.value}分)
+                    questionHTML += `<label><input type="radio" name="q${index}" value="${opt.value}" required> ${opt.text}</label>`;
                 });
                 questionHTML += `</div></div>`;
                 questionsContainer.innerHTML += questionHTML;
